@@ -1,0 +1,4 @@
+sidy,diop,1
+oumy,sagna,2
+modou,fall,2
+anta,diba,2
