@@ -155,8 +155,4 @@ void maquerpresenceAdmin()
         fs=fopen("Presence.txt","a");
         fprintf(fs,"%s\n",nom);
     }
-    
-
-    
 }
-
