@@ -87,7 +87,7 @@ void readFichieruser( identification user[],int *taille)
 fclose(fp);
 }
 
-int login(identification user[],int taille)
+int login(identification user[],int taille) // fonction pour demander le login et le mot de passe de l'utilisateur
 {
     char *mdp,c;
      char username[50];
@@ -121,7 +121,7 @@ else{break;}
 
 }
 
-void maquerpresenceAdmin()
+void maquerpresenceAdmin()  //fonction pour marquer la présence de l'apprenant
 {
      printf("voici la liste des classes\n");
      FILE *fp;
@@ -152,7 +152,27 @@ void maquerpresenceAdmin()
          char nom[50];
          printf("Select Etudiant:\n");
          scanf("%s",nom);
-        fs=fopen("Presence.txt","a");
+         printf("présent!!!!!!!");
+        fs=fopen("Presence.txt","a"); //ouverture du fichier Presence.txt qui va contenir les noms des apprenants présents
         fprintf(fs,"%s\n",nom);
     }
+    else if(classe==2)
+    {
+        FILE *fb;
+        FILE *fs;
+        fb = fopen("refDig.txt", "r");
+        printf("liste des étudiants refDig\n");
+        while (fgets(ligne, sizeof(ligne), fb) != NULL)
+         {
+            printf("%s", ligne);
+            printf("\n");
+         }
+         char nom[50];
+         printf("Select Etudiant:\n");
+         scanf("%s",nom);
+         printf("présent!!!!!!!");
+        fs=fopen("Presence.txt","a"); //ouverture du fichier Presence.txt qui va contenir les noms des apprenants présents
+        fprintf(fs,"%s\n",nom);
+    }
+    
 }

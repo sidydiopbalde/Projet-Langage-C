@@ -14,7 +14,7 @@ readFichieruser( user,&taille); //lecture des info du fichier.txt dans le tablea
 
 int x;
 do{
-     x=login(user,taille);
+     x=login(user,taille); //
 
 }while(x==3);
 
@@ -23,7 +23,7 @@ if(x==1)         // 1 correspond à l'admin
     menuA=menu_Admin();
     if(menuA==3)
     {
-       // maquerpresenceAdmin();
+       maquerpresenceAdmin(); 
 }
     }
     
