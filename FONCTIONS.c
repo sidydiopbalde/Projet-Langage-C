@@ -2,7 +2,8 @@
 #include <string.h>
 #include <termios.h>
 #include <unistd.h>
-
+#include<ctype.h>
+#include <unistd.h>
 
 int  menu_Admin()
 {
@@ -77,7 +78,7 @@ void readFichieruser( identification user[],int *taille)
         char username[50], mdp[50];
         int stat;
         sscanf(ligne, "%[^,],%[^,],%d", username, mdp, &stat);  //lecture des lignes du fichier dans le tableau user
-        strcpy(user[x].username, username);
+        strcpy(user[x].username, username);  //copie de la chaine lusername dans le tableau user
         strcpy(user[x].mdp, mdp);
         user[x].statut = stat;
         x++;
@@ -88,13 +89,29 @@ fclose(fp);
 
 int login(identification user[],int taille)
 {
-     char username[50], mdp[50];
-    printf("Entrez ton username: ");
-    scanf("%s", username);
-    printf("Entrez ton mot de passe : ");
-    scanf("%s", mdp);
-    
-     for (int i = 0; i < taille; i++) {
+    char *mdp,c;
+     char username[50];
+do{
+     printf("Entrez ton username: ");
+      scanf("%s",username);
+      username[strcspn(username,"\n")]='\0';
+if(strlen(username)==0)
+{
+    printf("invalide!\n");
+}
+else if(isspace((unsigned char)username[0])){
+    printf("invalide\n");
+
+}
+else{break;}
+}while(strlen(username) == 0 || strspn(username, " ") == strlen(username) || isspace((unsigned char)username[0]));
+     
+            
+        fflush(stdin);
+        getchar();
+
+       mdp= getpass("Entrez votre mot passe: "); //pour cacher le mot de passe
+      for (int i = 0; i < taille; i++) {
         if (strcmp(user[i].username, username) == 0 && strcmp(user[i].mdp, mdp) == 0) {
             return user[i].statut;
         }
@@ -104,5 +121,42 @@ int login(identification user[],int taille)
 
 }
 
+void maquerpresenceAdmin()
+{
+     printf("voici la liste des classes\n");
+     FILE *fp;
+    char ligne[100]; 
+    fp = fopen("listeClasse.txt", "r");
+    if (fp == NULL) {
+        printf("Impossible d'ouvrir le fichier.\n");
+    }
+    while (fgets(ligne, sizeof(ligne), fp) != NULL) {
+        
+        printf("%s", ligne);
+    }
+    int classe;
 
+    printf("Veuillez choisir la classe de l'étudiant(1-devWeb,2-refDig-3-devData\n");
+    scanf("%d",&classe);
+    if(classe==1)
+    {
+        FILE *fc;
+        FILE *fs;
+        fc = fopen("devWeb.txt", "r");
+        printf("liste des étudiants devWeb\n");
+        while (fgets(ligne, sizeof(ligne), fc) != NULL)
+         {
+            printf("%s", ligne);
+            printf("\n");
+         }
+         char nom[50];
+         printf("Select Etudiant:\n");
+         scanf("%s",nom);
+        fs=fopen("Presence.txt","a");
+        fprintf(fs,"%s\n",nom);
+    }
+    
+
+    
+}
 
