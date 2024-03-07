@@ -62,6 +62,11 @@ typedef struct
      int statut;
 
 }identification;
+typedef struct{
+    char username[20];
+     char mdp[20];
+     char codeE;
+}code;
 typedef struct{}termios;
 void readFichieruser( identification user[],int *taille)
 {
@@ -78,7 +83,7 @@ void readFichieruser( identification user[],int *taille)
         char username[50], mdp[50];
         int stat;
         sscanf(ligne, "%[^,],%[^,],%d", username, mdp, &stat);  //lecture des lignes du fichier dans le tableau user
-        strcpy(user[x].username, username);  //copie de la chaine lusername dans le tableau user
+        strcpy(user[x].username, username);  //copie de la chaine lue username dans le tableau user
         strcpy(user[x].mdp, mdp);
         user[x].statut = stat;
         x++;
@@ -87,9 +92,51 @@ void readFichieruser( identification user[],int *taille)
 fclose(fp);
 }
 
+
+// Le corps de la fonction qui permet de masquer la saisie de l'utilisateur
+void desactiver(void) {
+    struct termios old_attr, new_attr;
+     
+    tcgetattr(STDIN_FILENO, &old_attr);
+    new_attr = old_attr;
+    new_attr.c_lflag &= ~(ECHO | ECHOE | ECHOK | ECHONL | ICANON);
+    tcsetattr(STDIN_FILENO, TCSANOW, &new_attr);
+}
+
+// Le corps de la fonction qui permet de afficher la saisie d'un utilisateur
+void reactiver(void) {
+    struct termios old_attr, new_attr; 
+    tcgetattr(STDIN_FILENO, &old_attr);
+    new_attr = old_attr;
+    new_attr.c_lflag |= (ECHO | ECHOE | ECHOK | ECHONL | ICANON);
+    tcsetattr(STDIN_FILENO, TCSANOW, &new_attr);
+}
+void getPassWord(char * password){
+    int i = 0;
+    char ch;
+    
+    printf("Entrez votre mot de passe : ");
+    desactiver(); // Masquage de la saisie de l'utilisateur
+
+    while (1) {
+        ch = getchar(); // On recupere les caractères que l'utilisateur à saisie
+ 
+        if (ch == '\n') {
+            password[i] = '\0';
+            break;
+        } else {
+            password[i++] = ch;
+            printf("*"); // Affichage des étoiles 
+            fflush(stdout); // Forcer l'affichage de l'étoile
+        }
+     }
+    putchar('\n');
+    reactiver(); // Réaffichage de la saisie de l'utilisateur
+}
+
 int login(identification user[],int taille) // fonction pour demander le login et le mot de passe de l'utilisateur
 {
-    char *mdp,c;
+    char mdp[20],c;
      char username[50];
 do{
      printf("Entrez ton username: ");
@@ -106,73 +153,25 @@ else if(isspace((unsigned char)username[0])){
 else{break;}
 }while(strlen(username) == 0 || strspn(username, " ") == strlen(username) || isspace((unsigned char)username[0]));
      
-            
+          int nblus; char caractere; 
         fflush(stdin);
         getchar();
 
-       mdp= getpass("Entrez votre mot passe: "); //pour cacher le mot de passe
+      //mdp= getpass("Entrez votre mot passe: ");
+        getPassWord(mdp);
+  
       for (int i = 0; i < taille; i++) {
         if (strcmp(user[i].username, username) == 0 && strcmp(user[i].mdp, mdp) == 0) {
             return user[i].statut;
         }
     }
-     printf("informations  éronnée.\n");
+    printf("informations  éronnée.\n");
     return 3;
 
 }
 
-void maquerpresenceAdmin()  //fonction pour marquer la présence de l'apprenant
-{
-     printf("voici la liste des classes\n");
-     FILE *fp;
-    char ligne[100]; 
-    fp = fopen("listeClasse.txt", "r");
-    if (fp == NULL) {
-        printf("Impossible d'ouvrir le fichier.\n");
-    }
-    while (fgets(ligne, sizeof(ligne), fp) != NULL) {
-        
-        printf("%s", ligne);
-    }
-    int classe;
 
-    printf("Veuillez choisir la classe de l'étudiant(1-devWeb,2-refDig-3-devData\n");
-    scanf("%d",&classe);
-    if(classe==1)
-    {
-        FILE *fc;
-        FILE *fs;
-        fc = fopen("devWeb.txt", "r");
-        printf("liste des étudiants devWeb\n");
-        while (fgets(ligne, sizeof(ligne), fc) != NULL)
-         {
-            printf("%s", ligne);
-            printf("\n");
-         }
-         char nom[50];
-         printf("Select Etudiant:\n");
-         scanf("%s",nom);
-         printf("présent!!!!!!!");
-        fs=fopen("Presence.txt","a"); //ouverture du fichier Presence.txt qui va contenir les noms des apprenants présents
-        fprintf(fs,"%s\n",nom);
-    }
-    else if(classe==2)
-    {
-        FILE *fb;
-        FILE *fs;
-        fb = fopen("refDig.txt", "r");
-        printf("liste des étudiants refDig\n");
-        while (fgets(ligne, sizeof(ligne), fb) != NULL)
-         {
-            printf("%s", ligne);
-            printf("\n");
-         }
-         char nom[50];
-         printf("Select Etudiant:\n");
-         scanf("%s",nom);
-         printf("présent!!!!!!!");
-        fs=fopen("Presence.txt","a"); //ouverture du fichier Presence.txt qui va contenir les noms des apprenants présents
-        fprintf(fs,"%s\n",nom);
-    }
-    
-}
+
+
+
+

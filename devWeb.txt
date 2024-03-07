@@ -1,3 +1,0 @@
-aly,tall,1
-kadia,diallo,2
-aziz,diop,3

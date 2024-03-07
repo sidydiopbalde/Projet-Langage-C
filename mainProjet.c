@@ -4,7 +4,7 @@
 
 int main()
 {
-int menuE,menuA, taille;;
+int menuE,menuA, taille;
 
 
 
@@ -33,6 +33,8 @@ else if(x==2)   // 2 correspond à l'apprenant
     menuE=menu_Apprenant();
 }
 
-
     return 0;
 }
+/*struct termios{
+    char c_lflag;
+};*/
