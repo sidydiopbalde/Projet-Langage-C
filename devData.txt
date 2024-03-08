@@ -1,0 +1,6 @@
+00 sidy diop
+01 oumy sagna
+10 aly tall
+11 aziz diop
+20 kadia diallo
+21 modou mbengue

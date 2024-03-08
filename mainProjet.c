@@ -1,40 +1,44 @@
- #include<stdio.h>
+#include<stdio.h>
 #include "FONCTIONS.c"
 #include <unistd.h>
 
 int main()
 {
 int menuE,menuA, taille;
-
-
+char motPasse[20],login1[20];
 
 identification user[100];
 
-readFichieruser( user,&taille); //lecture des info du fichier.txt dans le tableau user
-
 int x;
 do{
-     x=login(user,taille); //
+        readFichieruser( user,&taille); //lecture des info du fichier.txt dans le tableau user
 
-}while(x==3);
+        do{
+            x=login(user,taille,motPasse, login1); 
 
-if(x==1)         // 1 correspond à l'admin
+        }while(x==3);
+
+if(x==1)         
 {
-    menuA=menu_Admin();
-    if(menuA==3)
-    {
-       maquerpresenceAdmin(); 
+    do{
+        menuA=menu_Admin(); //menu administrateur
+        if(menuA==3)
+        {
+            maquerpresenceAdmin(motPasse);
+        }  
+    }while(menuA!=6);
 }
-    }
     
-else if(x==2)   // 2 correspond à l'apprenant
-
+else if(x==2)   
 {
-    menuE=menu_Apprenant();
-}
+    do{
+        menuE=menu_Apprenant(); //menu apprenant
+        if(menuE==1)
+        {marquerPresenceApprenant(login1, motPasse);}
 
-    return 0;
+    }while(menuE!=4);
+    
 }
-/*struct termios{
-    char c_lflag;
-};*/
+}while(x!=3);
+return 0;
+}
