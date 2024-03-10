@@ -1,6 +1,6 @@
-00 sidy diop
-01 oumy sagna
-10 aly tall
-11 aziz diop
-20 kadia diallo
-21 modou mbengue
+00 sidy diop refDig
+01 oumy sagna devWeb
+10 aly tall devData
+11 aziz diop devWeb
+20 kadia diallo devData
+21 modou mbengue refDig

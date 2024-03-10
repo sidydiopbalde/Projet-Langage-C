@@ -178,7 +178,7 @@ void maquerpresenceAdmin(char motPasse[])  //fonction pour marquer la présence 
    char ligne[100];
     char username[50], mdp[50];
     char cod[20],x=0;
-    char rep;char mat[10];
+    char rep;char mat[10],classe[10];
     do{
  
      printf("Entrez votre code[Q pour quitter]\n");
@@ -204,19 +204,23 @@ void maquerpresenceAdmin(char motPasse[])  //fonction pour marquer la présence 
     
     while(fgets(ligne, sizeof(ligne), fp) != NULL) 
     {
-        sscanf(ligne,"%s %s %s", cod,username,mdp); 
+        sscanf(ligne,"%s %s %s %s", cod,username,mdp,classe); 
         if(strcmp(cod,mat)==0)
         { x=1; break;} 
     }
-if(x==1)
-{
-   
+    if(x==1)
+    {
+    
     time_t t;
     struct tm *info;
     time(&t);
     info = localtime(&t); //récuparation du temps local
 
-    char line[100]; char cd[10],m=0;
+    char current_date[20];
+    strftime(current_date, sizeof(current_date), "%d/%m/%Y", info);
+
+    char line[100]; char cd[10],m=0; char date[50],nom[50],prenom[50];
+
     //ouverture de la liste de présence 
     FILE* fa = fopen("Presence.txt", "r");
      if (fa == NULL) {
@@ -225,8 +229,8 @@ if(x==1)
      //vérifier si l'étudiant est dèjà marqué présent
      while(fgets(line, sizeof(line), fa) != NULL) 
     {
-        sscanf(line,"%s", cd); 
-        if(strcmp(cd,cod)==0)
+        sscanf(line,"%s %s %s %s", cd,prenom,nom,date); 
+        if(strcmp(cd,cod)==0 && strcmp(date,current_date)==0)
 
         { m=1; break;} 
     }
@@ -238,15 +242,16 @@ if(x==1)
             printf("Impossible d'ouvrir le fichier.\n");
         }
         printf("Marqué présent avec succés\n");
-        fprintf(fc," %s %s %s %02d/%02d/%04d %02d:%02d:%02d\n",cod,username,mdp,info->tm_mday, info->tm_mon + 1, info->tm_year + 1900,info->tm_hour, info->tm_min, info->tm_sec);
+        fprintf(fc," %s %s %s %s %02d/%02d/%04d %02d:%02d:%02d\n",cod,username,
+        mdp,classe,info->tm_mday, info->tm_mon + 1, info->tm_year + 1900,info->tm_hour, info->tm_min, info->tm_sec);
 
          fclose(fc);
     }
-} 
- else if (x==0)
- {printf(" XX code Invalide!!!\n");}
+    } 
+    else if (x==0)
+    {printf(" XX code Invalide!!!\n");}
 
-    printf("Appuyer sur une touch pour continuer....\n");
+        printf("Appuyer sur une touch pour continuer....\n");
     fflush(stdin);
     getchar();
     scanf("%c",&rep);
@@ -276,7 +281,10 @@ if(x==1)
     time(&t);
     info = localtime(&t);
 
-    char line[100], cd[10],m=0;
+     char current_date[20];
+    strftime(current_date, sizeof(current_date), "%d/%m/%Y", info);
+
+    char line[100], cd[10],m=0; char date[50],nom[50],prenom[50];
     FILE* fa = fopen("Presence.txt", "r");
      if (fa == NULL) {
         printf("Impossible d'ouvrir le fichier.\n");
@@ -284,8 +292,8 @@ if(x==1)
 
      while(fgets(line, sizeof(line), fa) != NULL) 
     {
-        sscanf(line,"%s", cd); 
-        if(strcmp(cd,cod)==0) //recherche du matricule de l'étudiant dans la liste des présents
+        sscanf(line,"%s %s %s %s", cd,prenom,nom,date); 
+        if(strcmp(cd,cod)==0 && strcmp(date,current_date)==0) //recherche du matricule de l'étudiant dans la liste des présents
         { m=1; 
         break;
         } 
@@ -297,14 +305,163 @@ if(x==1)
      if (fc == NULL) {
         printf("Impossible d'ouvrir le fichier.\n");
      }
+     printf("Marqué présent avec succés!!!!\n");
      // ecriture des informations de l'appprenant dans le fichier ou on marque les présences
-    fprintf(fc," %s %s %s %02d/%02d/%04d %02d:%02d:%02d\n",cod,username,mdp,info->tm_mday, info->tm_mon + 1, info->tm_year + 1900,info->tm_hour, info->tm_min, info->tm_sec);
+    fprintf(fc," %s %s %s %02d/%02d/%04d %02d:%02d:%02d\n",cod,username,mdp,
+    info->tm_mday, info->tm_mon + 1, info->tm_year + 1900,info->tm_hour, info->tm_min, info->tm_sec);
     fclose(fc);
     
     }
     }
 
+//Generer fichier
+typedef struct {
+    char cod[10];
+    char username[50];
+    char mdp[50];
+    char classe[50];
+    int day;
+    int month;
+    int year;
+    int hour;
+    int min;
+    int sec;
+} PresenceInfo;
+
+void imprimerTableau(FILE* fichier, char formattedDate[]) {
+    fprintf(fichier, "\nDate: %s\n", formattedDate);
+   fprintf(fichier, "+------------+----------------------+----------------------+--------+\n");
+    fprintf(fichier, "| Code       | Nom                  | Prénom               | Classe |\n");
+    fprintf(fichier, "+------------+----------------------+----------------------+--------+\n");
+}
+
+void ajouterLigneTableau(FILE* fichier, PresenceInfo presenceData) {
+    fprintf(fichier, "| %-10s | %-20s | %-20s | %-6s |\n",
+            presenceData.cod, presenceData.username, presenceData.mdp, presenceData.classe);
+}
+
+void regrouperParDate() {
+    FILE* fpPresence = fopen("Presence.txt", "r");
+    if (fpPresence == NULL) {
+        printf("Impossible d'ouvrir le fichier Presence.txt en mode lecture.\n");
+        return;
+    }
+
+    PresenceInfo presenceData[100];
+    int nbPresences = 0;
+
+    while (fscanf(fpPresence, "%s %s %s %s %d/%d/%d %d:%d:%d", presenceData[nbPresences].cod,
+                  presenceData[nbPresences].username, presenceData[nbPresences].mdp, presenceData[nbPresences].classe,
+                  &presenceData[nbPresences].day, &presenceData[nbPresences].month, &presenceData[nbPresences].year,
+                  &presenceData[nbPresences].hour, &presenceData[nbPresences].min, &presenceData[nbPresences].sec) == 10) {
+        nbPresences++;
+    }
+
+    fclose(fpPresence);
+
+    if (nbPresences == 0) {
+        printf("Aucune donnée de présence trouvée dans le fichier Presence.txt.\n");
+        return;
+    }
+
+    // Triez les données par date
+    for (int i = 0; i < nbPresences - 1; i++) {
+        for (int j = i + 1; j < nbPresences; j++) {
+            // Comparez les dates en considérant les jours, mois et années
+            if (presenceData[i].year > presenceData[j].year ||
+                (presenceData[i].year == presenceData[j].year && presenceData[i].month > presenceData[j].month) ||
+                (presenceData[i].year == presenceData[j].year && presenceData[i].month == presenceData[j].month && presenceData[i].day > presenceData[j].day)) {
+                PresenceInfo temp = presenceData[i];
+                presenceData[i] = presenceData[j];
+                presenceData[j] = temp;
+            }
+        }
+    }
+
+    FILE* fpGroupedByDate = fopen("GroupedByDate.txt", "w");
+    if (fpGroupedByDate == NULL) {
+        printf("Impossible d'ouvrir le fichier GroupedByDate.txt en mode écriture.\n");
+        return;
+    }
+
+    char currentDate[20] = "";
+    imprimerTableau(fpGroupedByDate, "Date");
+    
+    for (int i = 0; i < nbPresences; i++) {
+        char formattedDate[20];
+        sprintf(formattedDate, "%02d/%02d/%04d", presenceData[i].day, presenceData[i].month, presenceData[i].year);
+
+        if (strcmp(formattedDate, currentDate) != 0) {
+            // Si la date change, imprimez la nouvelle date et les en-têtes des colonnes
+            fprintf(fpGroupedByDate, "+------------+----------------------+----------------------+--------+\n");
+            imprimerTableau(fpGroupedByDate, formattedDate);
+            strcpy(currentDate, formattedDate);
+        }
+
+        // Écrivez les informations de présence dans le tableau
+        ajouterLigneTableau(fpGroupedByDate, presenceData[i]);
+    }
+
+    fprintf(fpGroupedByDate, "+------------+----------------------+----------------------+--------+\n");
+
+    fclose(fpGroupedByDate);
+
+    printf("Les données ont été regroupées par date dans le fichier GroupedByDate.txt.\n");
+}
+//fonction pour valider la date entrée par l'administrateur
+void VerifierDate(int J, int M, int A ,int *x)
+{
+   //x=0; permet de demander encore la date si elle est fausse
+   
+         if(M==4 || M==6 || M==9 || M==11)
+      {
+      if(J>30)
+      {
+        *x=0;
+        printf("%d / %d / %d Invalide!!\n",J,M,A);
+      }
+      }
+      else if(A>0 && ((A%4!=0 ||  A%100==0) && A%400!=0  ))
+    {if(M==2){
+      if(J>28)
+        {
+            *x=0;
+          printf("%d / %d / %d Invalide!!\n",J,M,A);
+        }
+    }
+    }
+    else if((J<=0 || J>31) || (M<=0 || M>12) || (A<=0))
+
+        { *x=0; printf("%d / %d / %d Invalide!!\n",J,M,A);}
+      else if((J>0 && J<=31) && (M>0 && J<=12) && (A>0))
+        { *x=1; printf("%d /%d /%d est une date valide\n",J,M,A);} 
+ 
+       
+ } 
+ 
+    
+void genererDateIsoler(){
+ 
+     int j,m,a,x;
+     do{
+             printf("Entrez la date\n");
+            scanf("%d%d%d",&j,&m,&a);
+            VerifierDate(j,m,a,&x);
+
+     }while(x==0); 
+}
 
 
+void genererDesFichiers()
+{
+    int x;
+    printf("**********GENERATION DE FICHIERS*********\n");
+    printf("Veuillez choisir une option\n1-liste compléte des présences\n2-Liste de présence par date\n");
+    scanf("%d",&x);
+  if(x==1)
+  {
+    regrouperParDate();
+  }
+}
 
 

@@ -2,6 +2,7 @@
 #include "FONCTIONS.c"
 #include <unistd.h>
 
+
 int main()
 {
 int menuE,menuA, taille;
@@ -14,18 +15,23 @@ do{
         readFichieruser( user,&taille); //lecture des info du fichier.txt dans le tableau user
 
         do{
-            x=login(user,taille,motPasse, login1); 
+            x=login(user,taille,motPasse, login1);  //connexion en tant que Admin ou Apprenant
 
         }while(x==3);
 
 if(x==1)         
 {
     do{
-        menuA=menu_Admin(); //menu administrateur
+        menuA=menu_Admin(); //menu Administrateur
+        if(menuA==2)
+        {
+            genererDesFichiers();
+        }
         if(menuA==3)
         {
             maquerpresenceAdmin(motPasse);
         }  
+        
     }while(menuA!=6);
 }
     
